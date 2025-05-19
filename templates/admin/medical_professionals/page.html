@@ -32,7 +32,7 @@ Medical Professionals
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
         {% for user in medical_professionals %}
-        <tr>
+        <tr class="clickable-row cursor-pointer hover:bg-gray-100 transition" data-user-id="{{ user.id }}">
           <td class="px-4 py-3">{{ user.name }}</td>
           <td class="px-4 py-3">{{ user.login.email }}</td>
           <td class="px-4 py-3">{{ user.age }}</td>
@@ -46,4 +46,18 @@ Medical Professionals
     </table>
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const rows = document.querySelectorAll('.clickable-row');
+    rows.forEach(row => {
+      row.addEventListener('click', () => {
+        const userId = row.getAttribute('data-user-id');
+        if (userId) {
+          window.location.href = `/admin/medical_professionals/${userId}`;
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}

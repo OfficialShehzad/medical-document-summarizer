@@ -1,9 +1,8 @@
-py -m venv env
-
-pip install -r requirements.txt
-
-flask --app app.py --debug run
-
-download and install tesseract-OCR
-
-download and install ollama and tinyllama
+STEPS TO RUN
+---------------------------------------------
+1. download and install tesseract-OCR
+2. download and install ollama and tinyllama
+3. py -m venv env
+4. pip install -r requirements.txt
+5. flask --app app.py --debug run
+6. ollama serve on a different terminal

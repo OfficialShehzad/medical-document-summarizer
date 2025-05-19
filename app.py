@@ -348,10 +348,44 @@ def admin_users_page():
     users = User.query.all()
     return render_template('admin/users/page.html', users=users)
 
+@app.route('/admin/users/<int:user_id>/delete', methods=['POST'])
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+
+    # Also delete associated login and possibly related data
+    login = user.login
+    db.session.delete(user)
+    if login:
+        db.session.delete(login)
+
+    db.session.commit()
+    flash('User deleted successfully.', 'success')
+    return redirect(url_for('admin_users_page'))
+
 @app.route('/admin/medical_professionals')
 def admin_medical_professionals_page():
     medical_professionals = MedicalProfessional.query.all()
     return render_template('admin/medical_professionals/page.html', medical_professionals=medical_professionals)
+
+@app.route('/admin/medical_professionals/<int:professional_id>')
+def medical_professional_detail(professional_id):
+    professional = MedicalProfessional.query.get_or_404(professional_id)
+    return render_template('admin/medical_professionals/detail.html', professional=professional)
+
+@app.route('/admin/medical-professionals/<int:professional_id>/delete', methods=['POST'])
+def delete_medical_professional(professional_id):
+    professional = MedicalProfessional.query.get_or_404(professional_id)
+    db.session.delete(professional)
+
+    # Also delete associated login and possibly related data
+    login = professional.login
+    db.session.delete(professional)
+    if login:
+        db.session.delete(login)
+
+    db.session.commit()
+    flash('Medical professional deleted successfully.', 'success')
+    return redirect(url_for('admin_medical_professionals_page'))
 
 @app.route('/admin/medical_professionals/add', methods=['GET', 'POST'])
 def admin_medical_professionals_add_page():
@@ -639,7 +673,7 @@ def profile_page():
     
     return render_template('profile.html', profile=profile_data, user_type=login.user_type)
 
-@app.route('/admin/user/<int:user_id>')
+@app.route('/admin/users/<int:user_id>')
 def user_detail(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('admin/users/detail.html', user=user)
