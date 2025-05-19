@@ -561,7 +561,7 @@ def send_message():
             ollama_url,
             json={
                 "model": "tinyllama",
-                "prompt": f"{context}\n\n This is my context, and this is my question {message}\n\n Please answer the question only if it is related to the context I provided, else just say Sorry I cannot provide an answer for that. Do not repeat the context itself",
+                "prompt": f"according to this text : '{context}', answer this please {message}",
                 "options": {"num_ctx": 2048}
             },
             headers={"Content-Type": "application/json"},

@@ -34,8 +34,7 @@ Chats
 
   <!-- Right: Chat Window -->
   <div class="flex flex-col h-full bg-slate-900 text-white max-h-screen">
-    <div
-      class="p-4 text-xl font-semibold border-b border-slate-700 h-full flex justify-center items-center w-full"
+    <div class="p-4 text-xl font-semibold border-b border-slate-700 h-full flex justify-center items-center w-full"
       id="chat-header">
       <p>
         Select a document to begin chatting
@@ -204,10 +203,11 @@ Chats
 </script>
 
 <script>
+
   document.querySelectorAll('.professional-help-button').forEach(btn => {
     btn.addEventListener('click', () => {
       const docId = btn.getAttribute('data-id');
-      const script = document.getElementById(`professionals-data`);
+      const script = document.getElementById('professionals-data');
       if (!script) return alert("No professional data found.");
 
       let professionals;
@@ -218,28 +218,52 @@ Chats
         return;
       }
 
-      const modal = document.getElementById('professionalModal');
-      const list = document.getElementById('professionalList');
-      list.innerHTML = '';
-
-      professionals.forEach(prof => {
-        const li = document.createElement('li');
-        li.className = "p-2 border border-gray-300 rounded cursor-pointer hover:bg-gray-200";
-        li.textContent = prof.name + ' (' + prof.specialty + ')';
-        li.onclick = () => {
-          alert(`You chose to contact ${prof.name} regarding document ${docId}`);
-          closeModal();
-          // You can add actual chat linking logic here
-        };
-        list.appendChild(li);
-      });
-
-      modal.classList.remove('hidden');
+      showProfessionals(professionals, docId);
     });
   });
 
+  function showProfessionals(medicalProfessionals, docId) {
+    const list = document.getElementById("professionalList");
+    list.innerHTML = '';
+
+    medicalProfessionals.forEach(pro => {
+      const li = document.createElement("li");
+      li.className = "p-3 border rounded-md hover:bg-violet-100 cursor-pointer";
+
+      li.innerHTML = `
+      <div class="font-semibold">${pro.name}, ${pro.specialization}</div>
+      <div class="text-sm text-gray-600">Age: ${pro.age}, Gender: ${pro.gender}</div>
+      <div class="text-sm text-gray-500 italic">Cert: ${pro.certification}</div>
+    `;
+
+      li.onclick = () => {
+        closeModal();
+
+        // Call backend to start the chat
+        fetch('/start_pro_chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ professional_id: pro.id, document_id: docId })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              // Redirect to the professional chat page
+              window.location.href = `/chats/professionals?chat_id=${data.chat_id}`;
+            } else {
+              alert('Failed to start chat');
+            }
+          });
+      };
+
+      list.appendChild(li);
+    });
+
+    document.getElementById("professionalModal").classList.remove("hidden");
+  }
+
   function closeModal() {
-    document.getElementById('professionalModal').classList.add('hidden');
+    document.getElementById("professionalModal").classList.add("hidden");
   }
 </script>
 

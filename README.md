@@ -1,6 +1,6 @@
 py -m venv env
 
-pip install -r requirements
+pip install -r requirements.txt
 
 flask --app app.py --debug run
 
