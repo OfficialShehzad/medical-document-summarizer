@@ -1,0 +1,137 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Summarizer
+{% endblock %}
+
+{% block main %}
+<div class="grid grid-cols-2 font-mono bg-violet-200">
+    <div class="flex justify-center items-center h-screen w-100">
+
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md max-h-screen">
+            <h2 class="text-2xl font-bold mb-6 text-center">Upload Your File</h2>
+            <form action="/submit_for_summarization" method="POST" enctype="multipart/form-data">
+                <!-- File Input Container -->
+                <div id="file-input-container"
+                    class="relative border-2 border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition duration-300">
+                    <input type="file" name="file" id="file"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        accept=".pdf,.png,.jpg,.jpeg,.gif" required>
+                    <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    <p class="mt-2 text-gray-600">Drag & drop your file here</p>
+                    <p class="text-sm text-gray-500">or click to browse</p>
+                    <p class="text-sm text-gray-500 mt-2">(Only PDF, PNG, JPG, JPEG, GIF)</p>
+                </div>
+
+                <!-- File Preview Container -->
+                <div id="file-preview-container" class="hidden mt-4 relative">
+                    <button id="remove-file-button" type="button"
+                        class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition duration-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                    <div id="file-preview-content" class="mt-4">
+                        <!-- PDF will be displayed here -->
+                        <iframe id="pdf-preview" class="w-full h-96 rounded-lg border" style="display: none;"></iframe>
+                    </div>
+                </div>
+
+                <!-- Upload Button -->
+                <button type="submit"
+                    class="w-full mt-6 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300">Upload</button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="flex flex-col justify-center items-center h-screen w-100 bg-slate-900">
+
+        {% if extracted_text %}
+        <p class="text-3xl text-white">
+            ⬇️Summary
+        </p>
+        <p class="text-xs text-white m-12" id="streamed-summary">
+            {{summary}}
+        </p>
+        {% else %}
+        <p class="text-3xl text-white">
+            ⬅️Please upload your document here
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+
+<script>
+    const fileInput = document.getElementById('file');
+    const fileInputContainer = document.getElementById('file-input-container');
+    const filePreviewContainer = document.getElementById('file-preview-container');
+    const filePreviewContent = document.getElementById('file-preview-content');
+    const removeFileButton = document.getElementById('remove-file-button');
+
+    fileInput.addEventListener('change', async (e) =>
+    {
+        const file = e.target.files[0];
+        if (file)
+        {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Upload the file to the server
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await response.json();
+
+            if (result.file_url)
+            {
+                // Display the file preview
+                if (file.type.startsWith('image/'))
+                {
+                    // For images, display directly
+                    filePreviewContent.innerHTML = `
+          <img src="${result.file_url}" alt="Preview" class="w-auto max-h-screen rounded-lg">
+        `;
+                } else if (file.type === 'application/pdf')
+                {
+                    // For PDFs, display the converted image
+                    filePreviewContent.innerHTML = `
+          <img src="${result.file_url}" alt="PDF Preview" class="w-auto max-h-screen rounded-lg">
+        `;
+                } else
+                {
+                    // For other file types, show the file name
+                    filePreviewContent.innerHTML = `
+          <p class="text-sm text-gray-700">Selected file: <strong>${file.name}</strong></p>
+        `;
+                }
+
+                // Hide the input container and show the preview container
+                fileInputContainer.classList.add('hidden');
+                filePreviewContainer.classList.remove('hidden');
+            } else
+            {
+                alert(result.error || 'Failed to upload file');
+            }
+        }
+    });
+
+    // Remove file and revert to input field
+    removeFileButton.addEventListener('click', () =>
+    {
+        fileInput.value = ''; // Clear the file input
+        filePreviewContent.innerHTML = ''; // Clear the preview content
+        filePreviewContainer.classList.add('hidden'); // Hide the preview container
+        fileInputContainer.classList.remove('hidden'); // Show the input container
+    });
+</script>
+
+{% endblock %}

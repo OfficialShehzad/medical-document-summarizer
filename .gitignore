@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+instance/
+.env
+env/
+*.db
+*.sqlite3
+uploads/
+converted/
+.env.*
+*.log
+*.pem

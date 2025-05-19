@@ -1,0 +1,79 @@
+{% extends "./layout.html" %}
+
+{% block title %}
+Document Detail
+{% endblock %}
+
+{% block main %}
+<div class="min-h-screen bg-gray-100 py-10 px-6">
+  <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Document Detail</h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <p class="text-sm text-gray-500">Document ID</p>
+        <p class="text-lg text-gray-700 font-semibold">{{ document.id }}</p>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500">User</p>
+        <p class="text-lg text-gray-700 font-semibold">
+          {{ document.user.name if document.user else "N/A" }}
+        </p>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500">Filename</p>
+        <p class="text-lg text-gray-700 font-semibold break-all">{{ document.file_path }}</p>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-500">Uploaded At</p>
+        <p class="text-lg text-gray-700 font-semibold">
+          {{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') if document.uploaded_at else "N/A" }}
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Summary</h2>
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-gray-700 whitespace-pre-wrap">
+        {{ document.summary }}
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Summary</h2>
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-gray-700 whitespace-pre-wrap">
+        <img src="" alt="" id="doc-preview">
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <a href="{{ url_for('admin_documents_page') }}" class="text-blue-600 hover:underline">&larr; Back to Documents</a>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="docName">
+    {{ document.file_path }}
+</script>
+
+<script>
+    const script = document.getElementById('docName');
+    const filePath = script.textContent;
+    
+    const docPreview = document.getElementById('doc-preview');
+
+    console.log(docPreview)
+
+    let updatedFilePath = filePath
+    .replace('uploads\\', '')
+    .replace('.pdf', '.jpg')
+    .trim();
+
+    docPreview.setAttribute('src', '/converted/' + updatedFilePath);
+    
+</script>
+
+{% endblock %}

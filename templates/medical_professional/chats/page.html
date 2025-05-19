@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Medical Professional Chat
+{% endblock %}
+
+{% block main %}
+<div class="grid grid-cols-2 h-screen font-mono bg-green-200">
+
+  <!-- Left: Chat List -->
+  <div class="h-full bg-white overflow-y-auto shadow-md">
+    <div class="text-2xl font-bold p-4 border-b">Your Patient Chats</div>
+    <ul id="medpro-chat-list">
+      {% for c in all_chats %}
+      <li data-id="{{ c.id }}" data-doc="{{ c.document_id }}"
+        class="cursor-pointer hover:bg-green-100 transition px-4 py-3 border-b flex items-start gap-3 justify-between {% if c.id == chat.id %}bg-green-100{% endif %}">
+        <div class="flex gap-3 items-center">
+          <div class="h-10 w-10 rounded-full bg-green-400 text-white flex items-center justify-center font-bold">
+            U{{ c.user.id }}
+          </div>
+          <div>
+            <div class="font-semibold truncate">{{ c.user.name }}</div>
+            <div class="text-sm text-gray-600 truncate max-w-[200px]">Doc #{{ c.document_id }}</div>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Right: Chat Window -->
+  <div class="flex flex-col h-full bg-slate-900 text-white max-h-screen">
+    {% if chat %}
+    <div class="p-4 text-xl font-semibold border-b border-slate-700">
+      Chat with {{ chat.user.name }} about Document #{{ chat.document_id }}
+    </div>
+
+    <div id="chat-window" class="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col" style="height: calc(100%-75px);">
+      {% for msg in messages %}
+      <div
+        class="max-w-[70%] px-4 py-2 rounded-lg {{ 'bg-slate-700 self-end ml-auto' if msg.sender == 'professional' else 'bg-green-600 self-start' }}">
+        {{ msg.message }}
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Input -->
+    <form onsubmit="sendMessage(event)" class="p-4 border-t border-slate-700 flex gap-2 bg-slate-900">
+      <input id="message-input" type="text" placeholder="Type your message..."
+        class="flex-1 rounded px-4 py-2 text-black focus:outline-none focus:ring-2 ring-green-500" required />
+      <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white font-semibold">
+        Send
+      </button>
+    </form>
+    {% else %}
+    <div class="flex flex-col justify-center items-center h-full text-gray-300 text-center p-6">
+      <p class="text-2xl mb-4">Select a chat on the left to start messaging</p>
+      <p>Or start a new chat from your patient/documents page.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script type="application/json" id="chatId">
+  {{ chat.id if chat else 'null' }}
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const chatIdElement = document.getElementById('chatId');
+
+    let currentChatId = null;
+    if (chatIdElement && chatIdElement.textContent.trim() && chatIdElement.textContent.trim() !== 'null') {
+      try {
+        currentChatId = JSON.parse(chatIdElement.textContent);
+      } catch (e) {
+        console.error("Failed to parse chatId JSON:", e);
+      }
+    } else {
+      console.log('No chat selected yet');
+    }
+
+    document.querySelectorAll('#medpro-chat-list li').forEach(li => {
+      li.addEventListener('click', () => {
+        const id = li.getAttribute('data-id');
+        if (id) {
+          window.location.href = `/medical_professionals/chat?chat_id=${id}`;
+        }
+      });
+    });
+
+    window.sendMessage = function (event) {
+      if (!currentChatId) {
+        alert('Please select a chat first!');
+        event.preventDefault();
+        return;
+      }
+      event.preventDefault();
+
+      const input = document.getElementById("message-input");
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chatWindow = document.getElementById("chat-window");
+
+      // Append professional message immediately
+      const proBubble = document.createElement("div");
+      proBubble.className = "max-w-[70%] px-4 py-2 rounded-lg bg-slate-700 self-end ml-auto";
+      proBubble.innerText = msg;
+      chatWindow.appendChild(proBubble);
+      input.value = '';
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+      input.disabled = true;
+
+      const loadingBubble = document.createElement("div");
+      loadingBubble.className = "max-w-[70%] px-4 py-2 rounded-lg bg-green-600 self-start";
+      loadingBubble.innerText = 'Patient is replying...';
+      chatWindow.appendChild(loadingBubble);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+      fetch("/api/send_medical_message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: currentChatId, message: msg })
+      })
+        .then(res => res.json())
+        .then(data => {
+          loadingBubble.remove();
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        })
+        .finally(() => {
+          input.disabled = false;
+          input.focus();
+        });
+    }
+  });
+</script>
+
+{% endblock %}

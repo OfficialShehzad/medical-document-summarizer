@@ -1,0 +1,49 @@
+{% extends "./layout.html" %}
+
+{% block title %}
+Medical Professionals
+{% endblock %}
+
+{% block main %}
+<div class="min-h-screen bg-gray-100 py-10 px-6">
+  <h1 class="text-4xl font-bold text-gray-800 mb-10 text-center">Medical Professionals</h1>
+
+  <!-- Medical Professionals Table -->
+  <div class="bg-white rounded-2xl shadow-lg p-6 mb-12 overflow-x-auto">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold text-gray-700 ">Medical Professionals</h2>
+
+         <a 
+            href="{{ url_for('admin_medical_professionals_add_page') }}"
+            class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            Add
+        </a>
+    </div>
+
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Name</th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Email</th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Age</th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Gender</th>
+          <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 uppercase">Specialization</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for user in medical_professionals %}
+        <tr>
+          <td class="px-4 py-3">{{ user.name }}</td>
+          <td class="px-4 py-3">{{ user.login.email }}</td>
+          <td class="px-4 py-3">{{ user.age }}</td>
+          <td class="px-4 py-3">{{ user.gender }}</td>
+          <td class="px-4 py-3">{{ user.specialization }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="px-4 py-3 text-gray-500">No medical professionals found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

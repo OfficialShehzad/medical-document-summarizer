@@ -1,0 +1,246 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Chats
+{% endblock %}
+
+{% block main %}
+<div class="grid grid-cols-2 h-screen font-mono bg-violet-200">
+
+  <!-- Left: Document List -->
+  <div class="h-full bg-white overflow-y-auto shadow-md">
+    <div class="text-2xl font-bold p-4 border-b">Documents</div>
+    <ul id="chat-list">
+      {% for doc in documents %}
+      <li data-id="{{ doc.id }}" data-summary="{{ doc.summary | e }}"
+        class="cursor-pointer hover:bg-violet-100 transition px-4 py-3 border-b flex items-start gap-3 justify-between">
+        <div class="flex gap-3 items-center">
+          <div class="h-10 w-10 rounded-full bg-violet-400 text-white flex items-center justify-center font-bold">
+            D{{ doc.id }}
+          </div>
+          <div>
+            <div class="font-semibold truncate">Doc #{{ doc.id }}</div>
+            <div class="text-sm text-gray-600 truncate max-w-[200px]">{{ doc.summary[:60] }}...</div>
+          </div>
+        </div>
+        <a href="javascript:void(0);" data-id="{{ doc.id }}"
+          class="professional-help-button rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none">
+          Get professional opinion
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Right: Chat Window -->
+  <div class="flex flex-col h-full bg-slate-900 text-white max-h-screen">
+    <div
+      class="p-4 text-xl font-semibold border-b border-slate-700 h-full flex justify-center items-center w-full"
+      id="chat-header">
+      <p>
+        Select a document to begin chatting
+      </p>
+    </div>
+
+    <div id="chat-window" class="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col" style="height: calc(100%-75px);">
+      <!-- Messages will go here -->
+    </div>
+
+    <!-- Input -->
+    <form onsubmit="sendMessage(event)" class="p-4 border-t border-slate-700 flex gap-2 bg-slate-900">
+      <input id="message-input" type="text" placeholder="Type your message..."
+        class="flex-1 rounded px-4 py-2 text-black focus:outline-none focus:ring-2 ring-violet-500" required />
+      <button type="submit" class="bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded text-white font-semibold">
+        Send
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="professionalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md max-h-60 overflow-y-auto px-6 pt-2 pb-6 space-y-4 relative">
+    <button onclick="closeModal()"
+      class="absolute top-0 right-3 text-gray-600 hover:text-black text-[40px]">&times;</button>
+    <h2 class="text-lg font-semibold text-gray-700">Select a Medical Professional</h2>
+    <ul id="professionalList" class="space-y-2 max-h-60 overflow-y-auto"></ul>
+  </div>
+</div>
+
+<script>
+  let selectedDocId = null;
+
+  // On page load, check if URL has chat_id param, and auto-select it if present
+  window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatIdFromUrl = urlParams.get('chat_id');
+    if (chatIdFromUrl) {
+      // Find the corresponding li element and simulate selection
+      const li = document.querySelector(`#chat-list li[data-id="${chatIdFromUrl}"]`);
+      if (li) {
+        selectChat(chatIdFromUrl, li.getAttribute('data-summary'));
+      }
+    }
+  });
+
+  // Attach click event listeners to all document list items
+  document.querySelectorAll('#chat-list li').forEach(li => {
+    li.addEventListener('click', (e) => {
+      if (e.target.classList.contains('professional-help-button')) return;
+      const docId = li.getAttribute('data-id');
+      const summary = li.getAttribute('data-summary');
+
+      // Update URL query param without reloading page
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('chat_id', docId);
+      window.history.pushState({}, '', newUrl);
+
+      selectChat(docId, summary);
+    });
+  });
+
+  function selectChat(docId, summary) {
+    selectedDocId = docId;
+    const header = document.getElementById("chat-header");
+    const chatWindow = document.getElementById("chat-window");
+
+    // Remove initial classes & set header text
+    header.classList.remove('h-full', 'flex', 'justify-center', 'items-center', 'w-full');
+    header.innerText = `Chat for Document #${docId}`;
+    chatWindow.innerHTML = '';
+
+    // Show summary as first message
+    const summaryBubble = document.createElement("div");
+    summaryBubble.className = "max-w-[70%] px-4 py-2 rounded-lg bg-violet-600 self-start";
+    summaryBubble.innerText = summary;
+    chatWindow.appendChild(summaryBubble);
+
+    // Load chat messages from backend
+    fetch(`/api/messages?document_id=${docId}`)
+      .then(res => res.json())
+      .then(data => {
+        data.messages.forEach(msg => {
+          const bubble = document.createElement("div");
+          bubble.className = `max-w-[70%] px-4 py-2 rounded-lg ${msg.sender === 'user' ? 'bg-slate-700 self-end' : 'bg-violet-600 self-start'}`;
+          bubble.innerText = msg.message;
+          chatWindow.appendChild(bubble);
+        });
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      })
+      .catch(() => {
+        chatWindow.innerHTML += '<div class="text-red-500">Failed to load messages.</div>';
+      });
+  }
+
+  // On back/forward browser navigation, reload the chat accordingly
+  window.addEventListener('popstate', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatIdFromUrl = urlParams.get('chat_id');
+    if (chatIdFromUrl) {
+      const li = document.querySelector(`#chat-list li[data-id="${chatIdFromUrl}"]`);
+      if (li) {
+        selectChat(chatIdFromUrl, li.getAttribute('data-summary'));
+      }
+    } else {
+      // No chat selected: show empty message
+      const header = document.getElementById("chat-header");
+      const chatWindow = document.getElementById("chat-window");
+      header.classList.add('h-full', 'flex', 'justify-center', 'items-center', 'w-full');
+      header.innerText = "Select a document to begin chatting";
+      chatWindow.innerHTML = '';
+    }
+  });
+
+  function sendMessage(event) {
+    event.preventDefault();
+    const input = document.getElementById("message-input");
+    const msg = input.value.trim();
+    if (!msg || !selectedDocId) return;
+
+    const chatWindow = document.getElementById("chat-window");
+
+    // Show user message
+    const userBubble = document.createElement("div");
+    userBubble.className = "max-w-[70%] px-4 py-2 rounded-lg bg-slate-700 self-end";
+    userBubble.innerText = msg;
+    chatWindow.appendChild(userBubble);
+    input.value = '';
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    // Disable input temporarily
+    input.disabled = true;
+
+    // Show loading message
+    const loadingBubble = document.createElement("div");
+    loadingBubble.className = "max-w-[70%] px-4 py-2 rounded-lg bg-violet-600 self-start";
+    loadingBubble.innerText = 'Bot is thinking...';
+    chatWindow.appendChild(loadingBubble);
+
+    // Send message to backend
+    fetch("/api/send_message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg, document_id: selectedDocId })
+    })
+      .then(res => res.json())
+      .then(data => {
+        const botReply = data.bot_reply || "⚠️ No response";
+        const botBubble = document.createElement("div");
+        botBubble.className = "max-w-[70%] px-4 py-2 rounded-lg bg-violet-600 self-start";
+        botBubble.innerText = botReply;
+        chatWindow.appendChild(botBubble);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      })
+      .finally(() => {
+        input.disabled = false;
+        input.focus();
+        chatWindow.removeChild(loadingBubble);
+      });
+  }
+</script>
+
+<script type="application/json" id="professionals-data">
+  {{ medicalProfessionals | tojson | safe }}
+</script>
+
+<script>
+  document.querySelectorAll('.professional-help-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const docId = btn.getAttribute('data-id');
+      const script = document.getElementById(`professionals-data`);
+      if (!script) return alert("No professional data found.");
+
+      let professionals;
+      try {
+        professionals = JSON.parse(script.textContent);
+      } catch (err) {
+        console.error("Invalid JSON in professionals script block", err);
+        return;
+      }
+
+      const modal = document.getElementById('professionalModal');
+      const list = document.getElementById('professionalList');
+      list.innerHTML = '';
+
+      professionals.forEach(prof => {
+        const li = document.createElement('li');
+        li.className = "p-2 border border-gray-300 rounded cursor-pointer hover:bg-gray-200";
+        li.textContent = prof.name + ' (' + prof.specialty + ')';
+        li.onclick = () => {
+          alert(`You chose to contact ${prof.name} regarding document ${docId}`);
+          closeModal();
+          // You can add actual chat linking logic here
+        };
+        list.appendChild(li);
+      });
+
+      modal.classList.remove('hidden');
+    });
+  });
+
+  function closeModal() {
+    document.getElementById('professionalModal').classList.add('hidden');
+  }
+</script>
+
+{% endblock %}

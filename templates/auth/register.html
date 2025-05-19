@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Login
+{% endblock %}
+
+
+{% block main %}
+
+<div class="w-screen h-screen bg-gradient-to-bl from-white via-grey-500 to-black flex items-center justify-center">
+    <div class="bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl p-10 w-full max-w-lg">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Register</h2>
+
+        <form method="POST" class="grid grid-cols-1 gap-4">
+            <input name="email" type="email" placeholder="Email" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+            <input name="password" type="password" placeholder="Password" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+            <input name="confirm" type="password" placeholder="Confirm Password" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+
+            <input name="name" type="text" placeholder="Full Name" required
+                class="w-full p-3 border border-gray-300 rounded-lg">
+            <input name="age" type="number" placeholder="Age" required
+                class="w-full p-3 border border-gray-300 rounded-lg">
+
+            <select name="gender" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+                <option value="" disabled selected>Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+
+            <input name="profession" type="text" placeholder="Profession" required
+                class="w-full p-3 border border-gray-300 rounded-lg">
+            <input name="height" type="number" step="0.01" placeholder="Height (cm) (Optional)"
+                class="w-full p-3 border border-gray-300 rounded-lg">
+            <input name="weight" type="number" step="0.01" placeholder="Weight (kg) (Optional)"
+                class="w-full p-3 border border-gray-300 rounded-lg">
+
+            <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+
+            <button type="submit"
+                class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 rounded-lg transition">Register</button>
+
+            <p class="text-center text-sm text-gray-700">
+                Already have an account?
+                <a href="{{ url_for('login', next=request.args.get('next')) }}" class="text-cyan-600 hover:underline">Login</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

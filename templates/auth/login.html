@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Login
+{% endblock %}
+
+
+{% block main %}
+
+<div
+    class="w-screen h-screen bg-gradient-to-br from-yellow-200 via-cyan-500 to-blue-600 flex items-center justify-center">
+    <div class="bg-white/80 backdrop-blur-sm shadow-2xl rounded-2xl p-10 w-full max-w-md">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
+
+        <form method="POST" class="space-y-4">
+            <input type="hidden" name="next" value="{{ next }}">
+            <input name="email" type="email" placeholder="Email" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+            <input name="password" type="password" placeholder="Password" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+
+            <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+
+            <button type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition">Log
+                In</button>
+
+            <p class="text-center text-sm text-gray-700">
+                Don’t have an account?
+                <a href="{{ url_for('register', next=request.args.get('next')) }}"
+                    class="text-indigo-600 hover:underline">
+                    Register
+                </a>
+            </p>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
