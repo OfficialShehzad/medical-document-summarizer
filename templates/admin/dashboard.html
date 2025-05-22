@@ -54,7 +54,7 @@ Dashboard
         <tr>
           <td class="px-4 py-3">{{ doc.id }}</td>
           <td class="px-4 py-3">{{ doc.user.name if doc.user else 'N/A' }}</td>
-          <td class="px-4 py-3">{{ doc.filename }}</td>
+          <td class="px-4 py-3">{{ doc.file_path }}</td>
           <td class="px-4 py-3">{{ doc.uploaded_at.strftime('%Y-%m-%d %H:%M') if doc.uploaded_at else 'N/A' }}</td>
         </tr>
         {% else %}

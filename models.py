@@ -1,6 +1,7 @@
 # models.py
 import datetime
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
 
 db = SQLAlchemy()
 
@@ -34,6 +35,7 @@ class Document(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     file_path = db.Column(db.String(200), nullable=False)
     summary = db.Column(db.Text, nullable=True)
+    uploaded_at = db.Column(db.DateTime(timezone=True), server_default=func.now()) 
 
     user = db.relationship('User', back_populates='documents')
     messages = db.relationship('ChatBot', back_populates='document', cascade='all, delete-orphan')

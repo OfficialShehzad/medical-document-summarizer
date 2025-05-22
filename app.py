@@ -26,22 +26,23 @@ app.config['SECRET_KEY'] = 'medical_document_summarizer_secret_key';
 db.init_app(app)
 
 # Uncomment the following lines to create the database and tables
-with app.app_context():
-    db.create_all()
+# with app.app_context():
+#     # db.drop_all()
+#     db.create_all()
 
-    # Check if admin already exists
-    existing_admin = Login.query.filter_by(user_type='admin').first()
-    if not existing_admin:
-        admin_login = Login(
-            email='admin@example.com',
-            password=generate_password_hash('admin123'),  # hashed password
-            user_type='admin'
-        )
-        db.session.add(admin_login)
-        db.session.commit()
-        print("✅ Default admin user created.")
-    else:
-        print("⚠️ Admin already exists.")
+#     # Check if admin already exists
+#     existing_admin = Login.query.filter_by(user_type='admin').first()
+#     if not existing_admin:
+#         admin_login = Login(
+#             email='admin@example.com',
+#             password=generate_password_hash('admin123'),  # hashed password
+#             user_type='admin'
+#         )
+#         db.session.add(admin_login)
+#         db.session.commit()
+#         print("✅ Default admin user created.")
+#     else:
+#         print("⚠️ Admin already exists.")
 
 # Set the path to the Tesseract executable
 TESSERACT_PATH = TESSERACT_PATH = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -141,6 +142,7 @@ def login():
         elif not check_password_hash(login_entry.password, password):
             flash('Incorrect password. Please try again.', 'error')
             return render_template('auth/login.html')
+        
         # Admin login
         elif email == 'admin@example.com' and login_entry.user_type == 'admin':
             session['user_name'] = 'Admin'
@@ -160,6 +162,7 @@ def login():
                 session['user_type'] = login_entry.user_type
 
                 flash(f'Welcome back, {session["user_name"]}!', 'success')
+                
             else:
                 flash('User details not found.', 'error')
                 return render_template('auth/login.html')
@@ -222,8 +225,9 @@ def chats_page():
         } for mp in medicalProfessionals
     ]
 
+    user = User.query.filter_by(login_id=session['user_id']).first()
     documents = Document.query.filter(
-        Document.user_id == session['user_id'],
+        Document.user_id == user.id,
         Document.summary.isnot(None)
     ).all()
     if not documents:
@@ -233,7 +237,8 @@ def chats_page():
 
 @app.route('/chats/professionals')
 def user_professional_chats_page():
-    user_id = session.get('user_id')
+    user = User.query.filter_by(login_id=session.get('user_id')).first()
+    user_id = user.id
     chat_id = request.args.get('chat_id')
     all_chats = ProfessionalChat.query.filter_by(user_id=user_id).all()
 
@@ -255,11 +260,11 @@ def start_pro_chat():
     data = request.get_json()
     doc_id = data.get('document_id')
     prof_id = data.get('professional_id')
-    user_id = session['user_id']
+    user = User.query.filter_by(login_id=session['user_id']).first()
 
     # Check if a chat already exists
     existing_chat = ProfessionalChat.query.filter_by(
-        document_id=doc_id, user_id=user_id, professional_id=prof_id
+        document_id=doc_id, user_id=user.id, professional_id=prof_id
     ).first()
 
     if existing_chat:
@@ -267,7 +272,7 @@ def start_pro_chat():
     else:
         chat = ProfessionalChat(
             document_id=doc_id,
-            user_id=user_id,
+            user_id=user.id,
             professional_id=prof_id
         )
         db.session.add(chat)
@@ -279,7 +284,8 @@ def start_pro_chat():
 @app.route("/api/send_professional_message", methods=['POST'])
 def send_professional_message():
     data = request.json
-    user_id = session.get("user_id")
+    user = User.query.filter_by(login_id=session.get("user_id")).first()
+    user_id = user.id
     chat_id = data.get("chat_id")
     message = data.get("message")
 
@@ -299,8 +305,8 @@ def send_professional_message():
 
 @app.route('/medical_professionals/chat')
 def professional_user_chats_page():
-    user_id = session.get('user_id')
-    professional = MedicalProfessional.query.filter_by(login_id=user_id).first()
+    user = User.query.filter_by(login_id=session.get('user_id')).first()
+    professional = MedicalProfessional.query.filter_by(login_id=session.get('user_id')).first()
     chat_id = request.args.get('chat_id')
     all_chats = ProfessionalChat.query.filter_by(professional_id=professional.id).all()
 
@@ -430,7 +436,30 @@ def admin_medical_professionals_add_page():
 
 @app.route('/admin/documents')
 def admin_documents_page():
-    documents = Document.query.all()
+    if session.get('user_type') == 'admin':
+        documents = Document.query.all()
+
+    elif session.get('user_type') == 'medical':
+        return redirect(url_for('medical_professional_documents_page'))
+
+    return render_template('admin/documents/page.html', documents=documents)
+
+@app.route('/medical_professional/documents')
+def medical_professional_documents_page():
+    if session.get('user_type') == 'medical':
+        professional = MedicalProfessional.query.filter_by(login_id=session.get('user_id')).first()
+        professional_id = professional.id
+        print("Session professional_id:", professional_id)
+
+        # Step 1: Subquery to get relevant document IDs
+        subquery = db.session.query(ProfessionalChat.document_id).filter_by(
+            professional_id=professional_id
+        ).subquery()
+
+        # Step 2: Filter Documents where ID is in the subquery result
+        documents = Document.query.filter(Document.id.in_(subquery)).all()
+
+        print("Filtered documents:", documents)
     return render_template('admin/documents/page.html', documents=documents)
 
 @app.route('/converted/<filename>')
@@ -551,8 +580,9 @@ def submit_for_summarization():
 
     # === Save to DB ===
     try:
+        user = User.query.filter_by(login_id=session['user_id']).first()
         doc = Document(
-            user_id=session['user_id'],
+            user_id=user.id,
             file_path=saved_path,
             summary=summary
         )
@@ -646,20 +676,20 @@ def get_messages():
 def profile_page():
     login = Login.query.get(session['user_id'])
     
-    if login.user_type == 'user':
+    if session.get('user_type') == 'user':
         profile_data = login.user
-    elif login.user_type == 'medical professional':
+    elif session.get('user_type') == 'medical':
         profile_data = login.medical_professional
     else:
         flash("Invalid user type.", "danger")
-        return redirect(url_for('logout'))
+        return redirect(url_for('home_page'))
 
     if request.method == 'POST':
         profile_data.name = request.form['name']
         profile_data.age = int(request.form['age']) if request.form['age'] else None
         profile_data.gender = request.form['gender']
 
-        if login.user_type == 'user':
+        if session.get('user_type') == 'user':
             profile_data.profession = request.form['profession']
             profile_data.height = float(request.form['height']) if request.form['height'] else None
             profile_data.weight = float(request.form['weight']) if request.form['weight'] else None
@@ -680,9 +710,26 @@ def user_detail(user_id):
 
 @app.route('/admin/documents/<int:doc_id>')
 def document_detail(doc_id):
+    if session.get('user_type') == 'medical':
+        return redirect(url_for('medical_professional_document_detail', doc_id=doc_id))
+    document = Document.query.get_or_404(doc_id)
+    return render_template('admin/documents/detail.html', document=document)
+
+@app.route('/medical_professional/documents/<int:doc_id>')
+def medical_professional_document_detail(doc_id):
     document = Document.query.get_or_404(doc_id)
     return render_template('admin/documents/detail.html', document=document)
 
 @app.route('/converted/<path:filename>')
 def serve_converted_image(filename):
     return send_from_directory('converted', filename)
+
+@app.route('/api/document/<int:doc_id>')
+def get_document_api(doc_id):
+    doc = Document.query.get_or_404(doc_id)
+    return jsonify({
+        'id': doc.id,
+        'file_path': doc.file_path,
+        'summary': doc.summary,
+        'uploaded_at': doc.uploaded_at.isoformat() if doc.uploaded_at else None,
+    })
