@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+
+{% block title %}
+About Us
+{% endblock %}
+
+{% block main %}
+<div class="bg-white py-20 px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto text-center">
+    <h2 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">About Our Platform</h2>
+    <p class="mt-6 text-lg leading-8 text-gray-600">
+      We built the Medical Document Summarizer to bridge the gap between patients and clarity. Whether you're waiting for a doctor's opinion or just need peace of mind — our tool simplifies complex medical documents into accurate, understandable summaries.
+    </p>
+  </div>
+
+  <div class="mt-20 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+    <div class="text-center">
+      <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-indigo-100">
+        <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path d="M8 16l-4-4 4-4m8 8l4-4-4-4M12 4v16"></path>
+        </svg>
+      </div>
+      <h3 class="mt-4 text-xl font-semibold text-gray-900">Smart Summarization</h3>
+      <p class="mt-2 text-gray-600">
+        Our AI engine understands and condenses your medical reports while preserving the most important information.
+      </p>
+    </div>
+
+    <div class="text-center">
+      <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-green-100">
+        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+      <h3 class="mt-4 text-xl font-semibold text-gray-900">Privacy First</h3>
+      <p class="mt-2 text-gray-600">
+        Your data is secure. We never store or share your documents beyond your session without your consent.
+      </p>
+    </div>
+
+    <div class="text-center">
+      <div class="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-yellow-100">
+        <svg class="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+          <path d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
+        </svg>
+      </div>
+      <h3 class="mt-4 text-xl font-semibold text-gray-900">Expert-Verified</h3>
+      <p class="mt-2 text-gray-600">
+        Connect with certified medical professionals to clarify doubts or get more information about your report.
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-20 max-w-4xl mx-auto text-center">
+    <h3 class="text-2xl font-bold text-gray-900 sm:text-3xl">We’re here for peace of mind</h3>
+    <p class="mt-4 text-gray-600">
+      Our goal is simple: empower you with knowledge. Whether it's a blood test or a detailed medical report, we’ll help you make sense of it — fast, accurately, and securely.
+    </p>
+    <a href="{{ url_for('summarizer_page') }}"
+       class="mt-8 inline-block rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
+      Try the Summarizer
+    </a>
+  </div>
+</div>
+
+<section class="bg-gray-50 py-24 px-6 lg:px-16">
+  <div class="max-w-6xl mx-auto text-center">
+    <h2 class="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-8">
+      Meet the Creator
+    </h2>
+    <div class="flex flex-col md:flex-row items-center justify-center gap-12 mt-14">
+      <img src="{{ url_for('static', filename='images/creator.jpg') }}"
+           alt="Creator Photo"
+           class="w-56 h-56 sm:w-64 sm:h-64 rounded-full object-cover shadow-xl ring-4 ring-indigo-500" />
+
+      <div class="max-w-xl text-center md:text-left">
+        <h3 class="text-3xl font-bold text-gray-800">Your Name</h3>
+        <p class="text-lg font-medium text-indigo-600 mt-1">
+          Full Stack Developer & MCA Student
+        </p>
+        <p class="mt-6 text-lg text-gray-700 leading-relaxed">
+          I’m passionate about building technology that makes people’s lives easier. I developed this platform to help users better understand their medical documents using the power of AI and intuitive design.
+        </p>
+        <p class="mt-4 text-lg text-gray-700 leading-relaxed">
+          Outside of coding, I enjoy playing cricket, listening to music, and exploring how tech can be used to solve real-world problems with simplicity.
+        </p>
+
+        <div class="mt-6 flex justify-center md:justify-start gap-6">
+          <a href="mailto:alameensigning@gmail.com" target="_blank" class="text-indigo-600 text-lg font-semibold hover:underline">Email</a>
+          <a href="https://www.linkedin.com/in/al-ameen-s-502aaa255" target="_blank" class="text-indigo-600 text-lg font-semibold hover:underline">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}

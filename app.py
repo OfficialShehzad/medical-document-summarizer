@@ -65,6 +65,10 @@ summary = ""
 def home_page():
     return render_template('index.html')
 
+@app.route("/about")
+def about_page():
+    return render_template('about.html')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -126,6 +130,8 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    next_page = request.args.get('next')
+
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
@@ -162,7 +168,7 @@ def login():
                 session['user_type'] = login_entry.user_type
 
                 flash(f'Welcome back, {session["user_name"]}!', 'success')
-                
+                return redirect(next_page or url_for('home_page'))
             else:
                 flash('User details not found.', 'error')
                 return render_template('auth/login.html')
