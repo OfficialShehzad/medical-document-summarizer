@@ -6,3 +6,6 @@ STEPS TO RUN
 4. pip install -r requirements.txt
 5. flask --app app.py --debug run
 6. ollama serve on a different terminal
+7. admin credentials : 
+    email: admin@example.com
+    password: admin123

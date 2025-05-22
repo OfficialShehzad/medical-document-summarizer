@@ -16,8 +16,23 @@ Login
             <input type="hidden" name="next" value="{{ next }}">
             <input name="email" type="email" placeholder="Email" required
                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
-            <input name="password" type="password" placeholder="Password" required
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+            <div class="relative">
+                <input name="password" type="password" id="password" placeholder="Password" required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 pr-12">
+                <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2">
+                    <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 hidden"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg id="eye-off-password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.958 9.958 0 012.52-4.284M6.634 6.634A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.956 9.956 0 01-4.058 4.582M15 12a3 3 0 00-3-3m0 0a3 3 0 013 3m0 0a3 3 0 01-3 3m0 0a3 3 0 01-3-3m9 9L3 3" />
+                    </svg>
+                </button>
+            </div>
 
             <input type="hidden" name="next" value="{{ request.args.get('next') }}">
 
@@ -35,5 +50,23 @@ Login
         </form>
     </div>
 </div>
+
+<script>
+    function setupEyeToggle(inputId, showId, hideId) {
+        const input = document.getElementById(inputId);
+        const show = document.getElementById(showId);
+        const hide = document.getElementById(hideId);
+
+        const toggleBtn = show.parentElement;
+
+        toggleBtn.addEventListener("click", () => {
+            const isHidden = input.type === "password";
+            input.type = isHidden ? "text" : "password";
+            show.classList.toggle("hidden", !isHidden);
+            hide.classList.toggle("hidden", isHidden);
+        });
+    }
+    setupEyeToggle("password", "eye-password", "eye-off-password");
+</script>
 
 {% endblock %}

@@ -14,15 +14,55 @@ Login
         <form method="POST" class="grid grid-cols-1 gap-4">
             <input name="email" type="email" placeholder="Email" required
                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
-            <input name="password" type="password" placeholder="Password" required
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
-            <input name="confirm" type="password" placeholder="Confirm Password" required
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+            <p class="text-sm text-red-500 hidden" id="error-email"></p>
 
-            <input name="name" type="text" placeholder="Full Name" required
+            <div class="relative">
+                <input name="password" type="password" id="password" placeholder="Password" required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 pr-12">
+                <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2">
+                    <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 hidden" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg id="eye-off-password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.958 9.958 0 012.52-4.284M6.634 6.634A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.956 9.956 0 01-4.058 4.582M15 12a3 3 0 00-3-3m0 0a3 3 0 013 3m0 0a3 3 0 01-3 3m0 0a3 3 0 01-3-3m9 9L3 3" />
+                    </svg>
+                </button>
+            </div>
+
+            <p class="text-sm text-red-500 hidden" id="error-password"></p>
+
+            <div class="relative">
+                <input name="confirm" type="password" id="confirm" placeholder="Confirm Password" required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 pr-12">
+                <button type="button" id="toggle-confirm" class="absolute right-3 top-1/2 -translate-y-1/2">
+                    <svg id="eye-confirm" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 hidden" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg id="eye-off-confirm" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.958 9.958 0 012.52-4.284M6.634 6.634A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.956 9.956 0 01-4.058 4.582M15 12a3 3 0 00-3-3m0 0a3 3 0 013 3m0 0a3 3 0 01-3 3m0 0a3 3 0 01-3-3m9 9L3 3" />
+                    </svg>
+                </button>
+            </div>
+
+            <p class="text-sm text-red-500 hidden" id="error-confirm"></p>
+
+            <input name="name" type="text" id="name" placeholder="Full Name" required
                 class="w-full p-3 border border-gray-300 rounded-lg">
-            <input name="age" type="number" placeholder="Age" required
+            <p class="text-sm text-red-500 hidden" id="error-name"></p>
+
+            <input name="age" type="number" id="age" placeholder="Age" required
                 class="w-full p-3 border border-gray-300 rounded-lg">
+            <p class="text-sm text-red-500 hidden" id="error-age"></p>
 
             <select name="gender" required
                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
@@ -32,24 +72,155 @@ Login
                 <option value="other">Other</option>
             </select>
 
-            <input name="profession" type="text" placeholder="Profession" required
+            <input name="profession" type="text" id="profession" placeholder="Profession" required
                 class="w-full p-3 border border-gray-300 rounded-lg">
-            <input name="height" type="number" step="0.01" placeholder="Height (cm) (Optional)"
+            <input name="height" type="number" id="height" step="0.01" placeholder="Height (cm) (Optional)"
                 class="w-full p-3 border border-gray-300 rounded-lg">
-            <input name="weight" type="number" step="0.01" placeholder="Weight (kg) (Optional)"
+            <input name="weight" type="number" id="weight" step="0.01" placeholder="Weight (kg) (Optional)"
                 class="w-full p-3 border border-gray-300 rounded-lg">
 
             <input type="hidden" name="next" value="{{ request.args.get('next') }}">
 
-            <button type="submit"
-                class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 rounded-lg transition">Register</button>
+            <button type="submit" id="submit-button" disabled
+                class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 rounded-lg transition disabled:cursor-not-allowed">Register</button>
 
             <p class="text-center text-sm text-gray-700">
                 Already have an account?
-                <a href="{{ url_for('login', next=request.args.get('next')) }}" class="text-cyan-600 hover:underline">Login</a>
+                <a href="{{ url_for('login', next=request.args.get('next')) }}"
+                    class="text-cyan-600 hover:underline">Login</a>
             </p>
         </form>
     </div>
 </div>
 
+<script>
+    const submitButton = document.getElementById('submit-button');
+
+    // Get inputs
+    const email = document.querySelector("input[name='email']");
+    const password = document.getElementById("password");
+    const confirm = document.getElementById("confirm");
+    const name = document.getElementById("name");
+    const age = document.getElementById("age");
+
+    // Get error containers
+    const emailError = document.getElementById("error-email");
+    const passwordError = document.getElementById("error-password");
+    const confirmError = document.getElementById("error-confirm");
+    const nameError = document.getElementById("error-name");
+    const ageError = document.getElementById("error-age");
+
+    // Validate Email
+    email.addEventListener("input", () => {
+        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!pattern.test(email.value)) {
+            emailError.innerText = "Invalid email format.";
+            emailError.classList.remove('hidden');
+        } else {
+            emailError.innerText = "";
+            emailError.classList.add('hidden');
+        }
+        validateForm();
+    });
+
+    // Validate Password
+    password.addEventListener("input", () => {
+        if (password.value.length < 6) {
+            passwordError.innerText = "Password must be at least 6 characters.";
+            passwordError.classList.remove('hidden');
+        } else {
+            passwordError.innerText = "";
+            passwordError.classList.add('hidden');
+        }
+
+        // Re-check confirm if user changes password
+        if (confirm.value.length > 0) {
+            confirm.dispatchEvent(new Event("input"));
+        }
+
+        validateForm();
+    });
+
+    // Validate Confirm Password
+    confirm.addEventListener("input", () => {
+        if (confirm.value !== password.value) {
+            confirmError.innerText = "Passwords do not match.";
+            confirmError.classList.remove('hidden');
+        } else {
+            confirmError.innerText = "";
+            confirmError.classList.add('hidden');
+        }
+        validateForm();
+    });
+
+    // Validate Name
+    name.addEventListener("input", () => {
+        if (name.value.length > 50) {
+            nameError.innerText = "Name must be less than 50 characters.";
+            nameError.classList.remove('hidden');
+        } else {
+            nameError.innerText = "";
+            nameError.classList.add('hidden');
+        }
+        validateForm();
+    });
+
+    // Validate Age
+    age.addEventListener("input", () => {
+        const val = parseInt(age.value);
+        if (isNaN(val) || val < 1 || val > 120) {
+            ageError.innerText = "Enter a valid age between 1 and 120.";
+            ageError.classList.remove('hidden');
+        } else {
+            ageError.innerText = "";
+            ageError.classList.add('hidden');
+        }
+        validateForm();
+    });
+
+    // Form validation function to control button state
+    function validateForm() {
+        const errors = [
+            emailError.innerText,
+            passwordError.innerText,
+            confirmError.innerText,
+            nameError.innerText,
+            ageError.innerText
+        ];
+
+        const requiredFieldsFilled = [
+            email.value,
+            password.value,
+            confirm.value,
+            name.value,
+            age.value
+        ].every(val => val.trim() !== '');
+
+        const hasErrors = errors.some(e => e.length > 0);
+
+        submitButton.disabled = hasErrors || !requiredFieldsFilled;
+    }
+
+    function setupEyeToggle(inputId, showId, hideId) {
+        const input = document.getElementById(inputId);
+        const show = document.getElementById(showId);
+        const hide = document.getElementById(hideId);
+
+        const toggleBtn = show.parentElement;
+
+        toggleBtn.addEventListener("click", () => {
+            const isHidden = input.type === "password";
+            input.type = isHidden ? "text" : "password";
+            show.classList.toggle("hidden", !isHidden);
+            hide.classList.toggle("hidden", isHidden);
+        });
+    }
+
+    setupEyeToggle("password", "eye-password", "eye-off-password");
+    setupEyeToggle("confirm", "eye-confirm", "eye-off-confirm");
+
+
+    // Run once on page load in case browser autofills anything
+    validateForm();
+</script>
 {% endblock %}
