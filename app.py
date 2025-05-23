@@ -560,7 +560,7 @@ def submit_for_summarization():
             ollama_url,
             json={
                 "model": "tinyllama",
-                "prompt": f"What does the following text mean :\n\n{extracted_text}, 'donot' return the entire text, just return the summary, and say how is the patient doing.",
+                "prompt": f"What does the following text mean :\n\n{extracted_text}, \n\n donot return the entire text, just return the summary, and say how is the patient doing, like if the patient has normal values or not.",
                 "options": {"num_ctx": 2048}
             },
             headers={"Content-Type": "application/json"},
@@ -631,7 +631,7 @@ def send_message():
             ollama_url,
             json={
                 "model": "tinyllama",
-                "prompt": f"according to this text : '{context}', answer this please {message}",
+                "prompt": f"according to this text:\n\n '{context}',\n\n answer this please:\n\n '{message}' \n\n keep it short",
                 "options": {"num_ctx": 2048}
             },
             headers={"Content-Type": "application/json"},
