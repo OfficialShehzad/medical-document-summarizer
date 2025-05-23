@@ -74,10 +74,16 @@ Login
 
             <input name="profession" type="text" id="profession" placeholder="Profession" required
                 class="w-full p-3 border border-gray-300 rounded-lg">
+            <p class="text-sm text-red-500 hidden" id="error-profession"></p>
+
             <input name="height" type="number" id="height" step="0.01" placeholder="Height (cm) (Optional)"
                 class="w-full p-3 border border-gray-300 rounded-lg">
+            <p class="text-sm text-red-500 hidden" id="error-height"></p>
+
             <input name="weight" type="number" id="weight" step="0.01" placeholder="Weight (kg) (Optional)"
                 class="w-full p-3 border border-gray-300 rounded-lg">
+            <p class="text-sm text-red-500 hidden" id="error-weight"></p>
+
 
             <input type="hidden" name="next" value="{{ request.args.get('next') }}">
 
@@ -102,6 +108,9 @@ Login
     const confirm = document.getElementById("confirm");
     const name = document.getElementById("name");
     const age = document.getElementById("age");
+    const profession = document.getElementById("profession")
+    const height = document.getElementById("height")
+    const weight = document.getElementById("weight")
 
     // Get error containers
     const emailError = document.getElementById("error-email");
@@ -109,6 +118,9 @@ Login
     const confirmError = document.getElementById("error-confirm");
     const nameError = document.getElementById("error-name");
     const ageError = document.getElementById("error-age");
+    const professionError = document.getElementById("error-profession")
+    const heightError = document.getElementById("error-height")
+    const weightError = document.getElementById("error-weight")
 
     // Validate Email
     email.addEventListener("input", () => {
@@ -178,6 +190,46 @@ Login
         validateForm();
     });
 
+    // Validate Profession
+    profession.addEventListener("input", () => {
+        const val = profession.value;
+        if (val.length < 3) {
+            professionError.innerText = "Profession must be at least 3 characters.";
+            professionError.classList.remove('hidden');
+        } else {
+            professionError.innerText = "";
+            professionError.classList.add('hidden');
+        }
+        validateForm();
+    });
+
+    // Validate Height
+    height.addEventListener("input", () => {
+        const val = parseInt(height.value);
+        if (isNaN(val) || val < 50 || val > 300) {
+            heightError.innerText = "Height should be between 50–300 cm.";
+            heightError.classList.remove('hidden');
+        } else {
+            heightError.innerText = "";
+            heightError.classList.add('hidden');
+        }
+        validateForm();
+    });
+
+    // Validate Height
+    weight.addEventListener("input", () => {
+        const val = parseInt(weight.value);
+        if (isNaN(val) || val < 10 || val > 500) {
+            weightError.innerText = "Weight should be between 10–500 kg.";
+            weightError.classList.remove('hidden');
+        } else {
+            weightError.innerText = "";
+            weightError.classList.add('hidden');
+        }
+        validateForm();
+    });
+
+
     // Form validation function to control button state
     function validateForm() {
         const errors = [
@@ -185,7 +237,10 @@ Login
             passwordError.innerText,
             confirmError.innerText,
             nameError.innerText,
-            ageError.innerText
+            ageError.innerText,
+            professionError.innerText,
+            heightError.innerText,
+            weightError.innerText
         ];
 
         const requiredFieldsFilled = [
@@ -193,7 +248,10 @@ Login
             password.value,
             confirm.value,
             name.value,
-            age.value
+            age.value,
+            profession.value,
+            height.value,
+            weight.value,
         ].every(val => val.trim() !== '');
 
         const hasErrors = errors.some(e => e.length > 0);

@@ -72,11 +72,13 @@ Add Medical Professional
                 <option value="other">Other</option>
             </select>
 
-            <input name="specialization" type="text" placeholder="Specialization" required
+            <input name="specialization" id="specialization" type="text" placeholder="Specialization" required
                 class="w-full p-3 border border-gray-300 rounded-lg">
-            <input name="certification" type="text" placeholder="Certification ID" required
-                class="w-full p-3 border border-gray-300 rounded-lg">
+            <p class="text-sm text-red-500 hidden" id="error-specialization"></p>
 
+            <input name="certification" id="certification" type="text" placeholder="Certification ID" required
+                class="w-full p-3 border border-gray-300 rounded-lg">
+            <p class="text-sm text-red-500 hidden" id="error-certification"></p>
 
             <button type="submit" disabled id="submit-button"
                 class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 rounded-lg transition disabled:cursor-not-allowed">
@@ -94,6 +96,8 @@ Add Medical Professional
     const confirm = document.getElementById("confirm");
     const name = document.getElementById("name");
     const age = document.getElementById("age");
+    const specialization = document.getElementById("specialization");
+    const certification = document.getElementById("certification");
 
     // Get error containers
     const emailError = document.getElementById("error-email");
@@ -101,6 +105,8 @@ Add Medical Professional
     const confirmError = document.getElementById("error-confirm");
     const nameError = document.getElementById("error-name");
     const ageError = document.getElementById("error-age");
+    const specializationError = document.getElementById("error-specialization");
+    const certificationError = document.getElementById("error-certification");
 
     // Validate Email
     email.addEventListener("input", () => {
@@ -166,6 +172,30 @@ Add Medical Professional
         } else {
             ageError.innerText = "";
             ageError.classList.add('hidden');
+        }
+        validateForm();
+    });
+
+    // Validate Specialization
+    specialization.addEventListener("input", () => {
+        if (specialization.value.length < 3) {
+            specializationError.innerText = "Specialization must be min 3 characters.";
+            specializationError.classList.remove('hidden');
+        } else {
+            specializationError.innerText = "";
+            specializationError.classList.add('hidden');
+        }
+        validateForm();
+    });
+
+    // Validate Certification
+    certification.addEventListener("input", () => {
+        if (certification.value.length < 3) {
+            certificationError.innerText = "Certification must be min 3 characters.";
+            certificationError.classList.remove('hidden');
+        } else {
+            certificationError.innerText = "";
+            certificationError.classList.add('hidden');
         }
         validateForm();
     });
