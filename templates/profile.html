@@ -12,47 +12,55 @@ Edit Profile
     <form method="POST" class="space-y-6">
       <div>
         <label class="block mb-1 text-gray-700 font-semibold">Name</label>
-        <input type="text" name="name" value="{{ profile.name }}" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="text" name="name" id="name" value="{{ profile.name }}" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <p class="text-sm text-red-500 mt-1 hidden">Name must be at least 2 characters.</p>
       </div>
 
       <div>
         <label class="block mb-1 text-gray-700 font-semibold">Age</label>
-        <input type="number" name="age" value="{{ profile.age }}" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="number" name="age" id="age" value="{{ profile.age }}" min="5" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <p class="text-sm text-red-500 mt-1 hidden">Enter a valid age (5–120).</p>
       </div>
 
       <div>
         <label class="block mb-1 text-gray-700 font-semibold">Gender</label>
-        <select name="gender" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select name="gender" id="gender" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="Male" {{ 'selected' if profile.gender == 'Male' else '' }}>Male</option>
           <option value="Female" {{ 'selected' if profile.gender == 'Female' else '' }}>Female</option>
           <option value="Other" {{ 'selected' if profile.gender == 'Other' else '' }}>Other</option>
         </select>
+        <p class="text-sm text-red-500 mt-1 hidden">Please select a gender.</p>
       </div>
 
       {% if user_type == 'user' %}
         <div>
           <label class="block mb-1 text-gray-700 font-semibold">Profession</label>
-          <input type="text" name="profession" value="{{ profile.profession }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <input type="text" name="profession" id="profession" value="{{ profile.profession }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <p class="text-sm text-red-500 mt-1 hidden">Profession must be at least 2 characters.</p>
         </div>
 
         <div>
           <label class="block mb-1 text-gray-700 font-semibold">Height (cm)</label>
-          <input type="number" name="height" step="0.1" value="{{ profile.height or '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <input type="number" name="height" id="height" step="0.1" value="{{ profile.height or '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <p class="text-sm text-red-500 mt-1 hidden">Height should be between 50–300 cm.</p>
         </div>
 
         <div>
           <label class="block mb-1 text-gray-700 font-semibold">Weight (kg)</label>
-          <input type="number" name="weight" step="0.1" value="{{ profile.weight or '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <input type="number" name="weight" id="weight" step="0.1" value="{{ profile.weight or '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <p class="text-sm text-red-500 mt-1 hidden">Weight should be between 10–500 kg.</p>
         </div>
       {% else %}
         <div>
           <label class="block mb-1 text-gray-700 font-semibold">Specialization</label>
-          <input type="text" name="specialization" value="{{ profile.specialization }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <input type="text" name="specialization" id="specialization" value="{{ profile.specialization }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <p class="text-sm text-red-500 mt-1 hidden">Specialization must be at least 3 characters.</p>
         </div>
 
         <div>
           <label class="block mb-1 text-gray-700 font-semibold">Certification</label>
-          <input type="text" name="certification" value="{{ profile.certification }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <input type="text" name="certification" id="certification" value="{{ profile.certification }}" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
+          <p class="text-sm text-red-500 mt-1 hidden">Certification must be at least 3 characters.</p>
         </div>
       {% endif %}
 
@@ -64,4 +72,42 @@ Edit Profile
     </form>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const fields = [
+      { id: "name", validate: val => val.trim().length >= 2, message: "Name must be at least 2 characters." },
+      { id: "age", validate: val => Number(val) >= 5 && Number(val) <= 120, message: "Enter a valid age (5–120)." },
+      { id: "gender", validate: val => ["Male", "Female", "Other"].includes(val), message: "Please select a gender." },
+      { id: "profession", validate: val => val === undefined || val.trim().length >= 2, message: "Profession must be at least 2 characters." },
+      { id: "height", validate: val => val === "" || (Number(val) > 50 && Number(val) < 300), message: "Height should be between 50–300 cm." },
+      { id: "weight", validate: val => val === "" || (Number(val) > 10 && Number(val) < 500), message: "Weight should be between 10–500 kg." },
+      { id: "specialization", validate: val => val === undefined || val.trim().length >= 3, message: "Specialization must be at least 3 characters." },
+      { id: "certification", validate: val => val === undefined || val.trim().length >= 3, message: "Certification must be at least 3 characters." }
+    ];
+
+    fields.forEach(({ id, validate }) => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener("input", () => {
+          const errorEl = input.nextElementSibling;
+          const isValid = validate(input.value);
+          if (!isValid) {
+            input.classList.add("border-red-500");
+            errorEl.classList.remove("hidden");
+          } else {
+            input.classList.remove("border-red-500");
+            errorEl.classList.add("hidden");
+          }
+        });
+
+        if (input.tagName.toLowerCase() === 'select') {
+          console.log('here')
+          input.addEventListener("change", () => input.dispatchEvent(new Event("input")));
+        }
+      }
+    });
+  });
+</script>
+
 {% endblock %}
